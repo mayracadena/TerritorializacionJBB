@@ -1,67 +1,70 @@
 import processing
 from qgis.core import QgsVectorLayer
+import openpyxl
 
 
-"""layershp01 = iface.addVectorLayer("D:/jbb/trabajo_aparte/Loca.shp", "Localidad", "ogr")
-if not layershp01:
-    print("el layer %s no se pudo cargar"%layershp01.name())
- """   
-
-
-    #manejo de geometrias
-def tipo_geometria(features):
-    features = layershp01.getFeatures()
-    for feature in features:
-        geom = feature.geometry()
-        print("Feature ID: ", feature.id())
-        #show some information about feacture
-        if geom.wkbType()== QgsWkbTypes.Point:
-            x = geom.asPoint()
-            print("Point:" ,x)
-        elif geom.wkbType == QgsWkbTypes.LineString: 
-            x = geom.asPolyline()
-            print('Line:',x,'points','length', geom.length())
-        elif geom.wkbType() == QgsWkbTypes.MultiPolygon:
-            x = geom.asMultiPolygon()
-            print("Polygon:",x,"Area: ", geom.area())
-        else:
-            print("Unknown")
-            print(geom.wkbType())
+class Territorializacion:
+    #ingrese acá el numero de la investigación
+    codigo = ""
+    #ingrese aca nombre(s) del investigador(s)
+    nombres = ""
+    #año de la investigación
+    year= "2024"
+    
+    
+    def __init__(self, codigo, nombres, year):
+        self.codigo = codigo
+        self.nombres = nombres
+        self.year = year
         
 
-def valores_atributivos(layershp01):
-    print("-VALORES ATRIBUTIVOS-")
-    features = layershp01.getFeatures()
-    for feature in features:
-        attrs =feature.attributes()
-        #attrs is a list. It contanisn all the attribute values of this feacture
-        print(attrs)
+
+    def valores_atribututos(datos, terri):
+        print("-VALORES PARA EL EXCEL DE TERRITORIALIZACIÓN-")
+        #features = layershp01.getFeatures()
+        for f in range(len(datos)):
+            for c in range(len(datos[f])):
+                print(datos[f][c])
+            
+            
+    def capa_activa():
+        lyr = iface.activeLayer()
+        print(lyr.name())
+        return lyr
+            
+    def select_by_location(lyr_input, terri):
+        localidades = iface.addVectorLayer("D:/jbb/trabajo_aparte/Loca.shp", "Localidad", "ogr")
+        parametros = {
+        "INPUT":localidades,
+        "PREDICATE":0,
+        "INTERSECT":lyr_input,
+        "METHOD":0,
+        "OUTPUT":None}
         
-def capas_activas():
-    lyr = iface.activeLayer()
-    print(lyr.name())
-    return lyr
+        processing.run("qgis:selectbylocation", parametros)
+        valores_seleccionados = localidades.selectedFeatures()
+           
+        i = 0
+        valores = []
+        if terri == 1:
+            for se in valores_seleccionados:
+                i += 1
+                valores.append([se.attribute('LocNombre'),se.attribute('LocCodigo')])
+                print(se.attribute('LocNombre'))
         
-def select_by_location(lyr_input):
-    localidades = iface.addVectorLayer("D:/jbb/trabajo_aparte/Loca.shp", "Localidad", "ogr")
-    parametros = {
-    "INPUT":lyr_input,
-    "PREDICATE":0,
-    "INTERSECT":localidades,
-    "METHOD":0,
-    "OUTPUT":None}
-    
-    processing.run("qgis:selectbylocation", parametros)
-    valores_seleccionados = lyr_input.selectedFeatures()
-    i = 0
-    for se in valores_seleccionados:
-        i += 1
-        print(f"seleccionados {i} {se.geometry()}")
-    
+        return valores
+        
 
 
-    
+        
 
-
-seleccionados = select_by_location(iface.activeLayer())
-#valores_atributivos(seleccionados)
+"""los valores posibles de terri son:
+1. LOCALIDAD
+2. UPZ
+3. CERROS
+4. SUBCUENCA
+5. MUNICIPIO
+6. EEP
+"""
+seleccionados = Territorializacion.select_by_location(capa_activa(), 1)
+Territorializacion.valores_atribututos(seleccionados, 1)

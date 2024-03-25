@@ -1,5 +1,6 @@
 import processing
 from qgis.core import QgsVectorLayer
+import pandas as pd
 import openpyxl
 
 
@@ -17,11 +18,18 @@ class Territorializacion:
         self.nombres = nombres
         self.year = year
         
+    def manejo_excel(terri):
+        file_name = 'D:/jbb/trabajo_aparte/20230324_Terri.xlsx'
+        sheet_name = 'Localidad'
 
+        # read the second sheet of the Excel file using Pandas
+        df = pd.read_excel(file_name, sheet_name=sheet_name)
+
+        # display the first five rows of the DataFrame
+        print(df.head())
 
     def valores_atribututos(datos, terri):
-        print("-VALORES PARA EL EXCEL DE TERRITORIALIZACIÓN-")
-        #features = layershp01.getFeatures()
+        
         for f in range(len(datos)):
             for c in range(len(datos[f])):
                 print(datos[f][c])
@@ -46,7 +54,7 @@ class Territorializacion:
            
         i = 0
         valores = []
-        if terri == 1:
+        if terri == 2:
             for se in valores_seleccionados:
                 i += 1
                 valores.append([se.attribute('LocNombre'),se.attribute('LocCodigo')])
@@ -59,12 +67,14 @@ class Territorializacion:
         
 
 """los valores posibles de terri son:
-1. LOCALIDAD
-2. UPZ
+1. UPZ
+2. LOCALIDAD
 3. CERROS
 4. SUBCUENCA
 5. MUNICIPIO
 6. EEP
 """
-seleccionados = Territorializacion.select_by_location(capa_activa(), 1)
-Territorializacion.valores_atribututos(seleccionados, 1)
+
+Territorializacion.manejo_excel(2)
+#seleccionados = Territorializacion.select_by_location(capa_activa(), 2)
+#Territorializacion.valores_atribututos(seleccionados, 2)

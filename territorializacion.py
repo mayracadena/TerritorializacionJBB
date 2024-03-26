@@ -18,15 +18,21 @@ class Territorializacion:
         self.nombres = nombres
         self.year = year
         
-    def manejo_excel(terri):
+    def manejo_excel(terri, datos):
         file_name = 'D:/jbb/trabajo_aparte/20230324_Terri.xlsx'
-        sheet_name = 'Localidad'
-
+        h_localidad = 'Localidad'
+        colum_localidad = {'A', 'D'}
         # read the second sheet of the Excel file using Pandas
-        df = pd.read_excel(file_name, sheet_name=sheet_name)
-
+        excel_terri = openpyxl.load_workbook(file_name)
+        hoja = excel_terri[h_localidad]
+        last_row = hoja.max_row
         # display the first five rows of the DataFrame
-        print(df.head())
+        print(last_row)
+        for f in range(len(datos)):
+            for c in range(len(datos[f])):
+                print(datos[f][c])
+                last_row =+ 1
+                hoja[colum_localidad[f] + last_row] = datos[f][c]
 
     def valores_atribututos(datos, terri):
         
@@ -75,6 +81,7 @@ class Territorializacion:
 6. EEP
 """
 
-Territorializacion.manejo_excel(2)
-#seleccionados = Territorializacion.select_by_location(capa_activa(), 2)
+
+seleccionados = Territorializacion.select_by_location(Territorializacion.capa_activa(), 2)
+Territorializacion.manejo_excel(2, seleccionados)
 #Territorializacion.valores_atribututos(seleccionados, 2)

@@ -42,26 +42,43 @@ class Territorializacion:
         return self.linea_inves
         
     def manejo_excel(terri, datos):
-        archivo_excel = 'D:/jbb/trabajo_aparte/20230324_Terri.xlsx'
-        h_localidad = 'Localidad'
-        
-       
-        excel_terri = openpyxl.load_workbook(archivo_excel)
-        hoja = excel_terri[h_localidad]
-        last_row = hoja.max_row 
-        
+        #variables globales de la clase
         nombres = Territorializacion().getNombres()
         id = Territorializacion().getIdinvestigacion()
         year = Territorializacion().getYear()
         nomb_inves = Territorializacion().getNom_inv()
         linea_inves = Territorializacion().getLinea_inves()
+        
+        
+        
+        #link del archivo de excel
+        archivo_excel = 'D:/jbb/trabajo_aparte/20230324_Terri.xlsx'
+        excel_terri = openpyxl.load_workbook(archivo_excel)
+        h_terri = ''
+        if(terri == 1):
+            h_terri = 'UPZ_UPR'
+        elif(terri == 2):
+            h_terri = 'Localidad'
+        elif(terri == 3):
+            h_terri = 'Cerros'
+        elif(terri == 4):
+            h_terri = 'Subcuenca'
+        elif(terri == 5):
+            h_terri = 'Municipio'
+        elif(terri == 6):
+            h_terri = 'EEP'
+            
+        
+        hoja = excel_terri[h_terri]
+        last_row = hoja.max_row 
+        
        
         for loc in datos:
             last_row = last_row+1
-            localidades = loc[0]
+            nombre_terri = loc[0]
             codigo = loc[1]
-            print(f'A{last_row}')
-            hoja[f'A{last_row}'] = localidades
+            
+            hoja[f'A{last_row}'] = nombre_terri
             hoja[f'D{last_row}'] = str(codigo)
             hoja[f'E{last_row}'] = id
             hoja[f'F{last_row}'] = nomb_inves
@@ -71,6 +88,7 @@ class Territorializacion:
             
             
         excel_terri.save(archivo_excel)
+        QgsProject.instance().removeMapLayer(iface.activeLayer())
             
      
     def valores_atribututos(datos, terri):
@@ -82,24 +100,24 @@ class Territorializacion:
             
     def capa_activa():
         lyr = iface.activeLayer()
-        print(lyr.name())
         return lyr
             
     def select_by_location(lyr_input, terri):
-        localidades = iface.addVectorLayer("D:/jbb/trabajo_aparte/Loca.shp", "Localidad", "ogr")
-        parametros = {
-        "INPUT":localidades,
-        "PREDICATE":0,
-        "INTERSECT":lyr_input,
-        "METHOD":0,
-        "OUTPUT":None}
-        
-        processing.run("qgis:selectbylocation", parametros)
-        valores_seleccionados = localidades.selectedFeatures()
-           
-        i = 0
         valores = []
         if terri == 2:
+            localidades = iface.addVectorLayer("D:/jbb/trabajo_aparte/Loca.shp", "Localidad", "ogr")
+            parametros = {
+            "INPUT":localidades,
+            "PREDICATE":0,
+            "INTERSECT":lyr_input,
+            "METHOD":0,
+            "OUTPUT":None}
+            
+            processing.run("qgis:selectbylocation", parametros)
+            valores_seleccionados = localidades.selectedFeatures()
+               
+            i = 0
+            
             for se in valores_seleccionados:
                 i += 1
                 valores.append([se.attribute('LocNombre'),se.attribute('LocCodigo')])

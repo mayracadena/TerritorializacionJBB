@@ -6,6 +6,7 @@ Para instalar librerias de python en qgis seguir estos pasos:
     3.1. pip install openpyxl
     
 """
+
 import processing
 from qgis.core import QgsVectorLayer
 import pandas as pd
@@ -77,16 +78,63 @@ class Territorializacion:
             last_row = last_row+1
             nombre_terri = loc[0]
             codigo = loc[1]
+            if(terri == 1):
+                #1. UPZ
+                hoja[f'C{last_row}'] = nombre_terri
+                hoja[f'A{last_row}'] = codigo
+                hoja[f'I{last_row}'] = id
+                hoja[f'J{last_row}'] = nomb_inves
+                hoja[f'K{last_row}'] = linea_inves
+                hoja[f'L{last_row}'] = year
+                hoja[f'M{last_row}'] = nombres
+            elif(terri == 2):
+                #2. LOCALIDAD
+                hoja[f'A{last_row}'] = nombre_terri
+                hoja[f'D{last_row}'] = codigo
+                hoja[f'E{last_row}'] = id
+                hoja[f'F{last_row}'] = nomb_inves
+                hoja[f'G{last_row}'] = linea_inves
+                hoja[f'H{last_row}'] = year
+                hoja[f'I{last_row}'] = nombres
+            elif(terri == 3):
+                #3. CERROS
+                hoja[f'D{last_row}'] = nombre_terri
+                hoja[f'A{last_row}'] = codigo
+                hoja[f'I{last_row}'] = id
+                hoja[f'J{last_row}'] = nomb_inves
+                hoja[f'K{last_row}'] = linea_inves
+                hoja[f'L{last_row}'] = year
+                hoja[f'M{last_row}'] = nombres
+            elif(terri == 4):
+                #4. SUBCUENCA
+                hoja[f'D{last_row}'] = nombre_terri
+                hoja[f'A{last_row}'] = codigo
+                hoja[f'I{last_row}'] = id
+                hoja[f'J{last_row}'] = nomb_inves
+                hoja[f'K{last_row}'] = linea_inves
+                hoja[f'L{last_row}'] = year
+                hoja[f'M{last_row}'] = nombres
+            elif(terri == 5):
+                #5. MUNICIPIO
+                hoja[f'F{last_row}'] = nombre_terri
+                hoja[f'E{last_row}'] = codigo
+                hoja[f'J{last_row}'] = id
+                hoja[f'K{last_row}'] = nomb_inves
+                hoja[f'L{last_row}'] = linea_inves
+                hoja[f'M{last_row}'] = year
+                hoja[f'N{last_row}'] = nombres
+            elif(terri == 6):
+                #6. EEP
+                hoja[f'A{last_row}'] = nombre_terri
+                hoja[f'B{last_row}'] = codigo
+                hoja[f'C{last_row}'] = id
+                hoja[f'D{last_row}'] = nomb_inves
+                hoja[f'E{last_row}'] = linea_inves
+                hoja[f'F{last_row}'] = year
+                hoja[f'G{last_row}'] = nombres
             
-            hoja[f'A{last_row}'] = nombre_terri
-            hoja[f'D{last_row}'] = str(codigo)
-            hoja[f'E{last_row}'] = id
-            hoja[f'F{last_row}'] = nomb_inves
-            hoja[f'G{last_row}'] = linea_inves
-            hoja[f'H{last_row}'] = str(year)
-            hoja[f'I{last_row}'] = nombres
-            
-            
+
+   
         excel_terri.save(archivo_excel)
         QgsProject.instance().removeMapLayer(iface.activeLayer())
             
@@ -104,25 +152,57 @@ class Territorializacion:
             
     def select_by_location(lyr_input, terri):
         valores = []
-        if terri == 2:
-            localidades = iface.addVectorLayer("D:/jbb/trabajo_aparte/Loca.shp", "Localidad", "ogr")
-            parametros = {
-            "INPUT":localidades,
-            "PREDICATE":0,
-            "INTERSECT":lyr_input,
-            "METHOD":0,
-            "OUTPUT":None}
+        capa = ''
+        nombre_capa = ''
+        if(terri == 1):
+            capa = ""
+            nombre_capa = "UPZ"
+        elif(terri == 2):
+            capa = "D:/jbb/trabajo_aparte/Loca.shp"
+            nombre_capa = "Localidad"
+        elif(terri == 3):
+            capa = ""
+            nombre_capa = "Cerros"
+        elif(terri == 4):
+            capa = "Subcuenca"
+            nombre_capa = "Localidad"
+        elif(terri == 5):
+            capa = ""
+            nombre_capa = "Municipios"
+        elif(terri == 6):
+            capa = ""
+            nombre_capa = "EEP"
             
-            processing.run("qgis:selectbylocation", parametros)
-            valores_seleccionados = localidades.selectedFeatures()
-               
-            i = 0
-            
-            for se in valores_seleccionados:
-                i += 1
-                valores.append([se.attribute('LocNombre'),se.attribute('LocCodigo')])
-                #print(se.attribute('LocNombre'))
         
+        ubicacion = iface.addVectorLayer(capa, nombre_capa, "ogr")
+        parametros = {
+        "INPUT":ubicacion,
+        "PREDICATE":0,
+        "INTERSECT":lyr_input,
+        "METHOD":0,
+        "OUTPUT":None}
+        
+        processing.run("qgis:selectbylocation", parametros)
+        valores_seleccionados = ubicacion.selectedFeatures()
+           
+        
+        
+        for se in valores_seleccionados:
+            #if(terri == 1):
+                #upz
+            if(terri == 2):
+                valores.append([se.attribute('LocNombre'),se.attribute('LocCodigo')])
+            #elif(terri == 3):
+                #Cerros
+            #elif(terri == 4):
+                #Subcuenca
+            #elif(terri == 5):
+                #Municipio
+            #elif(terri == 6):
+                #EEP
+            
+            
+    
         return valores
         
 
